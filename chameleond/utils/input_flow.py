@@ -502,6 +502,7 @@ class DpInputFlow(FpgaInputFlow):
     self._edid.Disable()
     self._DisableDdc()
     self._fpga.hpd.Unplug(self._input_id)
+    self.Initialize() # reset rx for the next plug
 
   def FireHpdPulse(
       self, deassert_interval_usec, assert_interval_usec, repeat_count,
