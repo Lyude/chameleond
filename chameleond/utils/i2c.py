@@ -146,6 +146,10 @@ class I2cSlave(object):
     """
     return self._slave
 
+  def _CheckStatus(self):
+    """Helper for polling the I2C status register"""
+    return self._memory.Read(self._base_addr + self._REG_STATUS)
+
   def _WaitForReady(self):
     """Waits for the I2C ready by polling the status register.
 
@@ -153,15 +157,23 @@ class I2cSlave(object):
       I2cBusError if I2C timeout or error.
     """
     tries = 0
-    while (self._memory.Read(self._base_addr + self._REG_STATUS) &
-           self._BIT_STATUS_BUSY):
+    first_status = self._CheckStatus()
+    status = first_status
+
+    # Sometimes i2c likes to be mean and give us errors that go away after a
+    # short period of time
+    while status & (self._BIT_STATUS_BUSY | self._BIT_STATUS_ERROR):
       tries += 1
       if tries > self._I2C_WAIT_RETRIES:
-        raise I2cBusError('I2C busy timeout')
+        break;
       time.sleep(self._I2C_WAIT_DELAY_SECS)
-    if (self._memory.Read(self._base_addr + self._REG_STATUS) &
-        self._BIT_STATUS_ERROR):
-      raise I2cBusError('I2C access error')
+      status = self._CheckStatus()
+
+    if status & (self._BIT_STATUS_BUSY | self._BIT_STATUS_ERROR):
+      if first_status & self._BIT_STATUS_BUSY:
+        raise I2cBusError('I2C busy timeout')
+      elif first_status & self._BIT_STATUS_ERROR:
+        raise I2cBusError('I2C access error')
 
   def Get(self, offset, size=1):
     """Gets the byte value of the given offset address.
