@@ -5,8 +5,9 @@
 SHELL := bash
 VERSION := 0.0.2
 #CC := armv7a-cros-linux-gnueabi-gcc
+CC := arm-linux-gnu-gcc
 CFLAGS := -g -Wall -O2
-INCLUDES := -Iinclude
+INCLUDES := -Iinclude -I/usr/lib/gcc/arm-linux-gnueabi/6.1.1/include -I/usr/lib/gcc/arm-linux-gnueabi/6.1.1/plugin/include -I/usr/include
 DESTDIR := /usr/bin
 BINDIR := ./bin
 SRCDIR := ./src
