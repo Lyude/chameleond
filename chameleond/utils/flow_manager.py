@@ -361,6 +361,32 @@ class FlowManager(object):
 
   @_FlowMethod
   @_VideoMethod
+  def SetI2cDifferState(self, port_id, enabled):
+    """Sets the enabled/disabled state of i2c differ mode on the given video
+    input.
+
+    Args:
+      port_id: The ID of the video input port.
+      enabled: True to enable i2c differ mode due to a user request; false to
+               disable it.
+    """
+    return self.flows[port_id].SetI2cDifferState(enabled)
+
+  @_FlowMethod
+  @_VideoMethod
+  def GetI2cDifferState(self, port_id):
+    """Checks if the DDC bus is enabled or disabled on the given video input.
+
+    Args:
+      port_id: The ID of the video input port.
+
+    Returns:
+      True if the DDC bus is enabled; False if disabled.
+    """
+    return self.flows[port_id].GetI2cDifferState()
+
+  @_FlowMethod
+  @_VideoMethod
   def ReadEdid(self, port_id):
     """Reads the EDID content of the selected video input on Chameleon.
 

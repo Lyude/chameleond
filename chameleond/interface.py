@@ -200,6 +200,29 @@ class ChameleondInterface(object):
     """
     raise NotImplementedError('IsDdcEnabled')
 
+  def SetI2cDifferState(self, port_id, enabled):
+    """Sets the enabled/disabled state of i2c differ mode on the given video
+    input.
+
+    Args:
+      port_id: The ID of the video input port.
+      enabled: True to enable i2c differ mode due to a user request; false to
+               disable it.
+    """
+    raise NotImplementedError('SetI2cDifferState')
+
+  def GetI2cDifferState(self, port_id):
+    """Checks if i2c differ mode is enabled or disabled on the given video
+    input.
+
+    Args:
+      port_id: The ID of the video input port.
+
+    Returns:
+      True if i2c differ mode is enabled, False if disabled.
+    """
+    raise NotImplementedError('GetI2cDifferState')
+
   def ReadEdid(self, port_id):
     """Reads the EDID content of the selected video input on Chameleon.
 

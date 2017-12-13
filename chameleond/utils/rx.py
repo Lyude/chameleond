@@ -45,6 +45,19 @@ class DpRx(i2c.I2cSlave):
   _REG_VIDEO_FLAG = 0xa9
   _BIT_INTERLACED = 1 << 2
 
+  _REG_I2C_DIFFER = 0xFD
+  _BIT_I2C_DIFFER_ENABLED = 1 << 2
+
+  def __init__(self, i2c_bus, slave):
+    """Constructs a DpRx object.
+
+    Args:
+      i2c_bus: The I2cBus object.
+      slave: The i2c slave address
+    """
+    super(DpRx, self).__init__(i2c_bus, slave)
+    self._i2c_differ_enabled = False
+
   def Initialize(self, dual_pixel_mode):
     """Runs the initialization sequence for the chip."""
     logging.info('Initialize DisplayPort RX chip.')
@@ -52,6 +65,8 @@ class DpRx(i2c.I2cSlave):
       self.SetDualPixelMode()
     else:
       self.SetSinglePixelMode()
+
+    self.SetI2cDiffer(self._i2c_differ_enabled)
 
     # TODO(waihong): Declare constants for the registers and values.
     self._SwitchBank(0)
@@ -95,6 +110,21 @@ class DpRx(i2c.I2cSlave):
     self._SwitchBank(1)
     self.Set(0x00, 0xa2)  # bit 4 disables dual pixel mode
     self._SwitchBank(0)
+
+  def SetI2cDiffer(self, enable):
+    """Controls whether or not the i2c receiver on the DP Rx is allowed to send
+    i2c differs when it hasn't prepared a full response to a DP aux message
+    from the DUT"""
+    self._SwitchBank(0)
+    if enable:
+      self.SetMask(self._REG_I2C_DIFFER, self._BIT_I2C_DIFFER_ENABLED)
+    else:
+      self.ClearMask(self._REG_I2C_DIFFER, self._BIT_I2C_DIFFER_ENABLED)
+    self._i2c_differ_enabled = enable
+
+  def GetI2cDifferState(self):
+    """Returns if differ mode on the i2c receiver is enabled or not"""
+    return self._i2c_differ_enabled
 
   def IsCablePowered(self):
     """Returns if the cable is powered or not."""

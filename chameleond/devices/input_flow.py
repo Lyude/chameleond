@@ -263,6 +263,23 @@ class FpgaInputFlow(chameleon_device.Flow):
     """
     return self._edid_enabled
 
+  def SetI2cDifferState(self, enabled):
+    """Sets the enabled/disabled state of i2c differ mode
+
+    Args:
+      enabled: True to enable i2c differ mode due to a user request; False
+      to disable it.
+    """
+    raise NotImplementedError('SetI2cDiffer')
+
+  def GetI2cDifferState(self):
+    """Checks if i2c differ mode is enabled or disabled.
+
+    Returns:
+      True if i2c differ mode is enabled, False if disabled.
+    """
+    raise NotImplementedError('GetI2cDifferState')
+
   def FireHpdPulse(
       self, deassert_interval_usec, assert_interval_usec, repeat_count,
       end_level):
@@ -523,6 +540,10 @@ class DpInputFlow(FpgaInputFlow):
     """Returns if the HPD line is plugged."""
     return self._fpga.hpd.IsPlugged(self._input_id)
 
+  def GetI2cDifferState(self):
+    """Returns if i2c differ mode is enabled"""
+    return self._rx.GetI2cDifferState()
+
   def Plug(self):
     """Asserts HPD line to high, emulating plug."""
     if self.IsEdidEnabled():
@@ -642,6 +663,10 @@ class DpInputFlow(FpgaInputFlow):
       self.Select()
       return True
     return False
+
+  def SetI2cDifferState(self, enabled):
+    """Enables/disables i2c differ mode for the DP aux channel"""
+    self._rx.SetI2cDiffer(enabled)
 
   def DoFSM(self):
     """Does the Finite-State-Machine to ensure the input flow ready.
